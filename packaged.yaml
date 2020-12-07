@@ -1,40 +1,38 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: >
-  sam-app
+Description: 'sam-app
 
   Sample SAM Template for sam-app
-  
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+
+  '
 Globals:
   Function:
     Timeout: 3
-
 Parameters:
   USERSTABLENAME:
     Type: String
-    Default: 'users'
+    Default: users
   PETSTABLENAME:
     Type: String
-    Default: 'pets'
+    Default: pets
   AUTHSECRETKEY:
     Type: String
-    Default: 'c9b71279b940cecc5f9992ef6553f5c0'
-
+    Default: c9b71279b940cecc5f9992ef6553f5c0
 Resources:
   AuthenticationFunction:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
-      #ImageConfig:
-        #Command: ["app.lambdaHandler"]
       Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref USERSTABLENAME
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: USERSTABLENAME
       Environment:
         Variables:
-          USERS_TABLE: !Ref USERSTABLENAME
-          AUTH_SECRET_KEY: !Ref AUTHSECRETKEY
+          USERS_TABLE:
+            Ref: USERSTABLENAME
+          AUTH_SECRET_KEY:
+            Ref: AUTHSECRETKEY
       Events:
         AuthenticationRegister:
           Type: Api
@@ -46,6 +44,7 @@ Resources:
           Properties:
             Path: /login
             Method: post
+      ImageUri: '084339140032.dkr.ecr.eu-central-1.amazonaws.com/sam-test-project-bucket:authenticationfunction-28199f36210c-nodejs12.x-v1'
     Metadata:
       DockerTag: nodejs12.x-v1
       DockerContext: ./authentication
@@ -54,15 +53,16 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
-      #ImageConfig:
-        #Command: ["app.lambdaHandler"]
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref PETSTABLENAME
+            TableName:
+              Ref: PETSTABLENAME
       Environment:
         Variables:
-          PETS_TABLE: !Ref PETSTABLENAME
-          AUTH_SECRET_KEY: !Ref AUTHSECRETKEY
+          PETS_TABLE:
+            Ref: PETSTABLENAME
+          AUTH_SECRET_KEY:
+            Ref: AUTHSECRETKEY
       Events:
         GetPets:
           Type: Api
@@ -89,48 +89,36 @@ Resources:
           Properties:
             Path: /pets/{id}
             Method: delete
+      ImageUri: '084339140032.dkr.ecr.eu-central-1.amazonaws.com/sam-test-project-bucket:petshopfunction-4db698bd4cf6-nodejs12.x-v1'
     Metadata:
       DockerTag: nodejs12.x-v1
       DockerContext: ./petshop
       Dockerfile: Dockerfile
   UsersTable:
-    Type: 'AWS::DynamoDB::Table'
+    Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Ref USERSTABLENAME
+      TableName:
+        Ref: USERSTABLENAME
       AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
+      - AttributeName: id
+        AttributeType: S
       KeySchema:
-        - AttributeName: id
-          KeyType: HASH
+      - AttributeName: id
+        KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
   PetsTable:
-    Type: 'AWS::DynamoDB::Table'
+    Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Ref PETSTABLENAME
+      TableName:
+        Ref: PETSTABLENAME
       AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
+      - AttributeName: id
+        AttributeType: S
       KeySchema:
-        - AttributeName: id
-          KeyType: HASH
+      - AttributeName: id
+        KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
-
-
-#Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  #AuthenticationApi:
-  #Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    #Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
-  #AuthenticationFunction:
-    #Description: "Hello World Lambda Function ARN"
-    #Value: !GetAtt HelloWorldFunction.Arn
-  #AuthenticationFunctionIamRole:
-    #Description: "Implicit IAM Role created for Hello World function"
-    #Value: !GetAtt HelloWorldFunctionRole.Arn
