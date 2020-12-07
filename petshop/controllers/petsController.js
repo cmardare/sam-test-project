@@ -21,7 +21,13 @@ exports.get = async () => {
  * @returns {object}
  */
 exports.getById = async (id) => {
-    const pet = await petsService.getPetById(id)
+    let pet = await petsService.getPetById(id)
+    if(!pet) return {
+        statusCode: 404,
+        body: JSON.stringify({
+            message: 'Item not found'
+        })
+    }
 
     return {
         statusCode: 200,
